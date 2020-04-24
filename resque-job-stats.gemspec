@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/alanpeabody/resque-job-stats"
   s.licenses = ["MIT"]
   s.required_ruby_version = ">= 2.2"
-  
+
   s.summary = "Job-centric stats for Resque"
 
   s.add_dependency('resque', '>= 1.17', '< 3')
@@ -34,4 +34,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "minitest", '~> 5.0'
   s.add_development_dependency "timecop", '~> 0.6'
   s.add_development_dependency 'rack-test', '>= 0'
+  s.add_development_dependency 'activejob', '>= 5.1.7'
 end
