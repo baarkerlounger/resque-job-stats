@@ -11,6 +11,41 @@ require 'resque/plugins/job_stats/history'
 module Resque
   module Plugins
     module JobStats
+
+      def self.included(base)
+        # this is all needed to support ActiveJobs
+        # the main difference is `perform` is an instance method, not a class
+        # method, and it will not magically call all of our after_<event> hooks
+        base.extend Resque::Plugins::JobStats::MeasuredHook
+        base.extend Resque::Plugins::JobStats::Performed
+        base.extend Resque::Plugins::JobStats::Enqueued
+        base.extend Resque::Plugins::JobStats::Failed
+        base.extend Resque::Plugins::JobStats::Duration
+        base.extend Resque::Plugins::JobStats::Timeseries::Enqueued
+        base.extend Resque::Plugins::JobStats::Timeseries::Performed
+        base.extend Resque::Plugins::JobStats::History
+        self.add_measured_job base
+
+        if base.ancestors.map(&:to_s).include?("ActiveJob::Base")
+          # ActiveJob does not magically call all of our after_perform_ABC methods like resque does
+          base.after_perform do |job|
+            job.class.methods.select do |meth|
+              meth.to_s.start_with?("after_perform_")
+            end.each do |meth|
+              job.class.send(meth)
+            end
+          end
+
+          base.after_enqueue do |job|
+            job.class.methods.select do |meth|
+              meth.to_s.start_with?("after_enqueue_")
+            end.each do |meth|
+              job.class.send(meth)
+            end
+          end
+        end
+      end
+
       include Resque::Plugins::JobStats::MeasuredHook
       include Resque::Plugins::JobStats::Performed
       include Resque::Plugins::JobStats::Enqueued
