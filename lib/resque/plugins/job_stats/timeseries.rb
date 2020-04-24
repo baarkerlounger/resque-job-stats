@@ -7,6 +7,7 @@ module Resque
       # Extend your job with this module to track how many
       # jobs are performed over a period of time
       module Timeseries
+        include Resque::Plugins::JobStats::MeasuredHook
 
         module Common
           # A timestamp rounded to the lowest minute
@@ -57,6 +58,7 @@ module Resque
 end
 
 module Resque::Plugins::JobStats::Timeseries::Enqueued
+  include Resque::Plugins::JobStats::MeasuredHook
   include Resque::Plugins::JobStats::Timeseries::Common
 
   # Increments the enqueued count for the timestamp when job is queued
